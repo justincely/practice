@@ -53,6 +53,25 @@ def problem_2(limit=4e6):
 
 #-------------------------------------------------------------------------------
 
+def problem_3(N=600851475143):
+    """ prime factors of 13195 are 5, 7, 13 and 29.
+
+    What is the largest prime factor of the number 600851475143 ?
+
+    """
+
+    all_factors = list(functions.factors(N))
+    
+    max_prime = 1
+    for factor in all_factors:
+        if factor > max_prime and functions.isprime(factor):
+            max_prime = factor
+
+    return max_prime
+
+#-------------------------------------------------------------------------------
+
 if __name__ == "__main__":
     print "Problem 1: ", problem_1()
     print "Problem 2: ", problem_2()
+    print "Problem 3: ", problem_3()
