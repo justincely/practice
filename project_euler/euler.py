@@ -71,7 +71,28 @@ def problem_3(N=600851475143):
 
 #-------------------------------------------------------------------------------
 
+def problem_4():
+    """A palindromic number reads the same both ways. The largest palindrome
+    made from the product of two 2-digit numbers is 9009 = 91 x 99.
+
+    Find the largest palindrome made from the product of two 3-digit numbers.
+    
+    """
+
+    largest = 0
+
+    for val1 in xrange(100, 1000):
+        for val2 in xrange(100, 1000):
+            prod = val1 * val2
+            if (str(prod) == str(prod)[::-1]) and (prod > largest):
+                largest = prod
+
+    return largest
+    
+#-------------------------------------------------------------------------------
+
 if __name__ == "__main__":
     print "Problem 1: ", problem_1()
     print "Problem 2: ", problem_2()
     print "Problem 3: ", problem_3()
+    print "Problem 4: ", problem_4()
