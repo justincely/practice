@@ -3,6 +3,7 @@
  */
 
 #include <iostream>
+#include <cmath>
 
 //------------------------------------------------------------------------------
 
@@ -15,6 +16,29 @@ int fibonacci(double n)
   else
     return fibonacci(n - 1) + fibonacci(n - 2);
 }
+
+//------------------------------------------------------------------------------
+
+bool isprime(int number)
+{
+  if ((number < 2) || (number % 2 == 0))
+    return false;
+
+  if (number == 2)
+    return true;
+
+  for (int value=3; value < sqrt(number) + 1; value+=2){
+    if (number % value == 0)
+      return false;
+  };
+
+  return true;
+
+}
+
+//------------------------------------------------------------------------------
+
+
 
 //------------------------------------------------------------------------------
 
@@ -72,8 +96,30 @@ int problem_2(double limit=4e6)
 
 //------------------------------------------------------------------------------
 
+int problem_3(double value=600851475143)
+{
+  /*prime factors of 13195 are 5, 7, 13 and 29.
+
+    What is the largest prime factor of the number 600851475143 ?
+  */
+
+  int max_prime_fac = 1;
+
+  for (int i=0; i<sqrt(value)+1; i++){
+    if (isprime(i) && (remainder(value, i) == 0) && (i > max_prime_fac)){
+      max_prime_fac = i;
+    };
+
+  };
+  
+  return max_prime_fac;
+}
+
+//------------------------------------------------------------------------------
+
 int main()
 {
   std::cout << "Problem 1: " << problem_1(1000) << "\n";
   std::cout << "Problem 2: " << problem_2(4e6) << "\n";
+  std::cout << "Problem 3: " << problem_3() << "\n";
 }
