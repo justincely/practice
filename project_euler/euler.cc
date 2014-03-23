@@ -4,6 +4,10 @@
 
 #include <iostream>
 #include <cmath>
+#include <algorithm>
+#include <sstream>
+
+using namespace std;
 
 //------------------------------------------------------------------------------
 
@@ -38,7 +42,17 @@ bool isprime(int number)
 
 //------------------------------------------------------------------------------
 
+string reverse (string s) { 
 
+  string result=""; //create a new string and set it to the empty string 
+
+  for (int i=0; i<s.length( ) ; i++) { //s.length( ) returns the length of a string 
+
+    result = s[ i ] + result ; //take the newest character and add it before what we have already 
+  } 
+
+return result; 
+}
 
 //------------------------------------------------------------------------------
 
@@ -117,9 +131,36 @@ int problem_3(double value=600851475143)
 
 //------------------------------------------------------------------------------
 
+int problem_4()
+{
+  /*A palindromic number reads the same both ways. The largest palindrome
+    made from the product of two 2-digit numbers is 9009 = 91 x 99.
+
+    Find the largest palindrome made from the product of two 3-digit numbers.
+  */
+
+  int largest = 0;
+  int product = 0;
+
+  for (int val1=100; val1<1000; val1++){
+    for (int val2=100; val2<1000; val2++){
+      product = val1 * val2;
+      string prod_str = static_cast<ostringstream*>( &(ostringstream() << product) )->str();      
+      if (prod_str == reverse(prod_str) && (product > largest))
+	largest = product;
+    };
+  };
+    
+  return largest;
+  
+}
+
+//------------------------------------------------------------------------------
+
 int main()
 {
   std::cout << "Problem 1: " << problem_1(1000) << "\n";
   std::cout << "Problem 2: " << problem_2(4e6) << "\n";
   std::cout << "Problem 3: " << problem_3() << "\n";
+  std::cout << "Problem 4: " << problem_4() << "\n";
 }
