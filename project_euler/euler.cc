@@ -179,6 +179,25 @@ int problem_5(int N=20)
 
 //------------------------------------------------------------------------------
 
+int problem_6(int N=100)
+{
+  int sum_of_squares = 0;
+  int square_of_sums = 0;
+  int diff = 0;
+
+  for (int i=1; i<=N; i++){
+    sum_of_squares += i*i;
+    square_of_sums += i;
+  };
+
+  square_of_sums *= square_of_sums;
+
+  return square_of_sums - sum_of_squares;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 int main()
 {
   std::cout << "Problem 1: " << problem_1(1000) << "\n";
@@ -186,4 +205,5 @@ int main()
   std::cout << "Problem 3: " << problem_3() << "\n";
   std::cout << "Problem 4: " << problem_4() << "\n";
   std::cout << "Problem 5: " << problem_5() << "\n";
+  std::cout << "Problem 6: " << problem_6() << "\n";
 }

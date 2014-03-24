@@ -116,9 +116,24 @@ def problem_5(N=20):
 
 #-------------------------------------------------------------------------------
 
+def problem_6(N=100):
+    """Find the difference between the sum of the squares of the first 
+    one hundred natural numbers and the square of the sum.
+
+    """
+
+    naturals = np.arange(1, N+1)
+    sum_of_squares = (naturals **2).sum()
+    square_of_sums = naturals.sum()**2
+
+    return square_of_sums - sum_of_squares
+
+#-------------------------------------------------------------------------------
+
 if __name__ == "__main__":
-    print "Problem 1: ", problem_1()
-    print "Problem 2: ", problem_2()
-    print "Problem 3: ", problem_3()
-    print "Problem 4: ", problem_4()
-    print "Problem 5: ", problem_5()
+    #print "Problem 1: ", problem_1()
+    #print "Problem 2: ", problem_2()
+    #print "Problem 3: ", problem_3()
+    #print "Problem 4: ", problem_4()
+    #print "Problem 5: ", problem_5()
+    print "Problem 6: ", problem_6()
