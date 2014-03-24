@@ -130,10 +130,34 @@ def problem_6(N=100):
 
 #-------------------------------------------------------------------------------
 
+def problem_7(N=10001):
+    """By listing the first six prime numbers: 2, 3, 5, 7, 11, and 13,
+    we can see that the 6th prime is 13.
+
+    What is the 10 001st prime number?
+
+    """
+
+    count = 0
+    value = 0
+    while count < N:
+        value += 1
+
+        if (not value % 2) and (value != 2):
+            continue
+
+        if functions.isprime(value):
+            count += 1
+        
+    return value
+
+#-------------------------------------------------------------------------------
+
 if __name__ == "__main__":
-    #print "Problem 1: ", problem_1()
-    #print "Problem 2: ", problem_2()
-    #print "Problem 3: ", problem_3()
-    #print "Problem 4: ", problem_4()
-    #print "Problem 5: ", problem_5()
+    print "Problem 1: ", problem_1()
+    print "Problem 2: ", problem_2()
+    print "Problem 3: ", problem_3()
+    print "Problem 4: ", problem_4()
+    print "Problem 5: ", problem_5()
     print "Problem 6: ", problem_6()
+    print "Problem 7: ", problem_7()

@@ -16,10 +16,10 @@ def fibonacci(n):
 #-------------------------------------------------------------------------------
 
 def isprime(number):
-    if number < 2 or not number % 2:
-        return False
     if number == 2:
         return True
+    if number < 2 or not number % 2:
+        return False
     
     for value in xrange(3, int(np.sqrt(number))+1, 2):
         if not number % value:

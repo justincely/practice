@@ -25,11 +25,12 @@ int fibonacci(double n)
 
 bool isprime(int number)
 {
-  if ((number < 2) || (number % 2 == 0))
-    return false;
 
   if (number == 2)
     return true;
+
+  if ((number < 2) || (number % 2 == 0))
+    return false;
 
   for (int value=3; value < sqrt(number) + 1; value+=2){
     if (number % value == 0)
@@ -198,6 +199,28 @@ int problem_6(int N=100)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+int problem_7(int N=10001)
+{
+  int count = 0;
+  int value = 0;
+  
+  while (count < N){
+    value ++;
+    
+    if ((value % 2 == 0) && (value != 2))
+      continue;
+
+    if (isprime(value))
+      count += 1;
+
+  };
+
+  return value;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 int main()
 {
   std::cout << "Problem 1: " << problem_1(1000) << "\n";
@@ -206,4 +229,5 @@ int main()
   std::cout << "Problem 4: " << problem_4() << "\n";
   std::cout << "Problem 5: " << problem_5() << "\n";
   std::cout << "Problem 6: " << problem_6() << "\n";
+  std::cout << "Problem 7: " << problem_7() << "\n";
 }
