@@ -157,10 +157,33 @@ int problem_4()
 
 //------------------------------------------------------------------------------
 
+int problem_5(int N=20)
+{
+  int out = N;
+  bool leave = false;
+
+  while (!leave){
+      out += N;
+      leave = true;
+
+      for (int val=N; val>1; val--){
+	if (out % val){
+	  leave = false;
+	  break;
+	};
+      };
+  };
+
+  return out;
+}
+
+//------------------------------------------------------------------------------
+
 int main()
 {
   std::cout << "Problem 1: " << problem_1(1000) << "\n";
   std::cout << "Problem 2: " << problem_2(4e6) << "\n";
   std::cout << "Problem 3: " << problem_3() << "\n";
   std::cout << "Problem 4: " << problem_4() << "\n";
+  std::cout << "Problem 5: " << problem_5() << "\n";
 }

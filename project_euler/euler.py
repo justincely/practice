@@ -91,8 +91,34 @@ def problem_4():
     
 #-------------------------------------------------------------------------------
 
+def problem_5(N=20):
+    """2520 is the smallest number that can be divided by each of the numbers 
+    from 1 to 10 without any remainder.
+
+    What is the smallest positive number that is evenly divisible by all 
+    of the numbers from 1 to 20?
+
+    """
+    
+    out = N
+    leave = False
+
+    while not leave:
+        out += N
+        leave = True
+
+        for val in xrange(N, 1, -1):
+            if out % val:
+                leave = False
+                break
+
+    return out
+
+#-------------------------------------------------------------------------------
+
 if __name__ == "__main__":
     print "Problem 1: ", problem_1()
     print "Problem 2: ", problem_2()
     print "Problem 3: ", problem_3()
     print "Problem 4: ", problem_4()
+    print "Problem 5: ", problem_5()
