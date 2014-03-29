@@ -153,7 +153,29 @@ def problem_7(N=10001):
 
 #-------------------------------------------------------------------------------
 
+def problem_8():
+    import operator
+    num_string = ''.join([line.strip() 
+                          for line in open('problem_008_source.txt') ])
+
+    max_prod = 0
+    start = 0
+    end = start + 5
+    while end <= len(num_string):
+        numbers = [int(num_string[i]) for i in xrange(start, end)]
+        prod = reduce(operator.mul, numbers)
+        if prod > max_prod:
+            max_prod = prod
+
+        start += 1
+        end += 1
+
+    return max_prod
+
+#-------------------------------------------------------------------------------
+
 if __name__ == "__main__":
+    
     print "Problem 1: ", problem_1()
     print "Problem 2: ", problem_2()
     print "Problem 3: ", problem_3()
@@ -161,3 +183,4 @@ if __name__ == "__main__":
     print "Problem 5: ", problem_5()
     print "Problem 6: ", problem_6()
     print "Problem 7: ", problem_7()
+    print "Problem 8: ", problem_8()

@@ -1,11 +1,12 @@
 /* Practice
 
  */
-
+#include <typeinfo>
 #include <iostream>
 #include <cmath>
 #include <algorithm>
 #include <sstream>
+#include <fstream>
 
 using namespace std;
 
@@ -221,6 +222,55 @@ int problem_7(int N=10001)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+int problem_8()
+{
+  int number_arr[1000] = {0};
+  int position = 0;
+  std::string line;
+
+  ifstream file("problem_008_source.txt");
+  if (file.is_open())
+    {
+      while (! file.eof() ) 
+  	{
+  	  getline(file, line); 
+	  if (line.length() == 0)
+	    continue;
+
+	  for (int i=0; i<line.length(); i++){
+	    //I hate that this is how to convert a char to int
+	    stringstream str;
+	    str << line[i];
+	    str >> number_arr[position];
+	    // end
+	    position++;
+	  };
+	};
+    };
+  file.close();
+
+  int start = 0;
+  int end = start + 5;
+  int max_prod = 0;
+
+  while (end <= 1000){
+    int tmp_prod = 1;
+    for (int i=start; i<end; i++){
+      tmp_prod *= (char)number_arr[i];
+    };
+
+    if ((tmp_prod) > max_prod)
+      max_prod = tmp_prod;
+
+    start++;
+    end++;
+  };
+
+  return max_prod;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 int main()
 {
   std::cout << "Problem 1: " << problem_1(1000) << "\n";
@@ -230,4 +280,5 @@ int main()
   std::cout << "Problem 5: " << problem_5() << "\n";
   std::cout << "Problem 6: " << problem_6() << "\n";
   std::cout << "Problem 7: " << problem_7() << "\n";
+  std::cout << "Problem 8: " << problem_8() << "\n";
 }
