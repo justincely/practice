@@ -271,6 +271,21 @@ int problem_8()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+double problem_10()
+{
+  double running_sum = 2.0;
+  
+  for (int val=3; val<=2e6; val+=2){
+    if (isprime(val))
+      running_sum += val;
+  };
+		
+  return running_sum;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 int main()
 {
   std::cout << "Problem 1: " << problem_1(1000) << "\n";
@@ -281,4 +296,5 @@ int main()
   std::cout << "Problem 6: " << problem_6() << "\n";
   std::cout << "Problem 7: " << problem_7() << "\n";
   std::cout << "Problem 8: " << problem_8() << "\n";
+  printf("Problem 10: %f \n", problem_10());
 }
