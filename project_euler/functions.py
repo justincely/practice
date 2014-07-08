@@ -34,3 +34,22 @@ def factors(n):
                 ([i, n//i] for i in range(1, int(n**0.5) + 1) if n % i == 0)))
 
 #-------------------------------------------------------------------------------
+
+def collatz(start):
+    if not start > 0:
+        raise ValueError('input value must be larger than 1')
+
+    sequence = []
+    sequence.append(start)
+    
+    while start != 1:
+        if not start % 2:
+            start /= 2
+        else:
+            start = (3 * start) + 1
+        
+        sequence.append(start)
+
+    return sequence
+
+#-------------------------------------------------------------------------------

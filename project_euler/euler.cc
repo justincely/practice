@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <sstream>
 #include <fstream>
+#include <stdexcept>
 
 using namespace std;
 
@@ -40,6 +41,33 @@ bool isprime(int number)
 
   return true;
 
+}
+
+//------------------------------------------------------------------------------
+
+int len_collatz(long start)
+{
+
+  if (! start > 0)
+    throw std::invalid_argument("received negative value or zero");
+
+  int seq_length = 1;
+
+  while (start != 1){
+    //cout << "  " << start << "\n";
+    if (start % 2 == 0)
+      start = start / 2;
+    else
+      start = (3 * start) + 1;
+
+    if (! start > 0)
+      throw std::invalid_argument("computed negative value or zero");
+
+    seq_length += 1;
+  };
+
+  
+  return seq_length;
 }
 
 //------------------------------------------------------------------------------
@@ -286,6 +314,27 @@ double problem_10()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+int problem_14()
+{
+  int longest_len = 0;
+  int longest_val = 0;
+  int new_len = 0;
+
+  for (int i=1; i<=1000000; i++){
+    new_len = len_collatz(i);
+    //std::cout << i << " " << new_len << "\n";
+    if (new_len > longest_len){
+      longest_len = new_len;
+      longest_val = i;
+    }
+    
+  };
+
+  return longest_val;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 int main()
 {
   std::cout << "Problem 1: " << problem_1(1000) << "\n";
@@ -297,4 +346,5 @@ int main()
   std::cout << "Problem 7: " << problem_7() << "\n";
   std::cout << "Problem 8: " << problem_8() << "\n";
   printf("Problem 10: %f \n", problem_10());
+  std::cout << "Problem 14: " << problem_14() << "\n";
 }

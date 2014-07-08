@@ -185,8 +185,22 @@ def problem_10():
 
 #-------------------------------------------------------------------------------
 
+def problem_14():
+    longest_len = 0
+    longest_val = 0
+
+    for starting in xrange(1, 1000001):
+        sequence = functions.collatz(starting)
+        if len(sequence) > longest_len:
+            longest_len = len(sequence)
+            longest_val = starting
+
+    return longest_val
+
+#-------------------------------------------------------------------------------
+
 if __name__ == "__main__":
-    '''
+    """
     print "Problem 1: ", problem_1()
     print "Problem 2: ", problem_2()
     print "Problem 3: ", problem_3()
@@ -194,5 +208,6 @@ if __name__ == "__main__":
     print "Problem 5: ", problem_5()
     print "Problem 6: ", problem_6()
     print "Problem 7: ", problem_7()
-    print "Problem 8: ", problem_8()  ''' 
-    print "Problem 10: ", problem_10()
+    print "Problem 8: ", problem_8()  
+    print "Problem 10: ", problem_10()"""
+    print "Problem 14: ", problem_14()
