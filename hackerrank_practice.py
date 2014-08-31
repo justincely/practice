@@ -3,6 +3,23 @@ from itertools import combinations
 
 #-------------------------------------------------------------------------------
 
+def generate_data(n_lines=100000):
+    import random
+    nbytes = n_lines * 2
+
+    with open('large_data.txt', 'w') as ofile:
+        ofile.write('{}\n'.format(nbytes))
+        ofile.write('15\n')
+        ofile.write('10\n')
+        ofile.write('{}\n'.format(n_lines))
+
+        for i in xrange(n_lines):
+            start = random.randint(0, nbytes-2)
+            end = random.randint(start+1, nbytes-1)
+            ofile.write('{},{}\n'.format(start, end))
+
+#-------------------------------------------------------------------------------
+
 def parse_line(line):
     """Check line formatting and parse data.
 
