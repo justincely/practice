@@ -82,8 +82,7 @@ def parse_input(input_string):
     Returns:
     --------
     data : tuple
-        total_byes (int), latency (int), bandwith (int), n_chunks (int),
-        all_chunks (list of tuples)
+        total_bytes (int), all_chunks (list of tuples)
 
     """
 
@@ -94,19 +93,16 @@ def parse_input(input_string):
     bandwidth = int(all_lines[2])
     n_chunks = int(all_lines[3])
 
-    all_chunks = []
+    all_chunks = {}
     for i, line in enumerate(all_lines[4:]):
         try:
             data = parse_line(line)
         except Exception as e:
             print 'line {} error: {}'.format(i, e)
 
-        all_chunks.append(data)
+        all_chunks[data] = read_time(data[1] - data[0], bandwidth, latency)
 
-    #-- Remove redundnacy of chunks
-    all_chunks = list(set(all_chunks))
-
-    return total_bytes, latency, bandwidth, n_chunks, all_chunks
+    return total_bytes, all_chunks
 
 #-------------------------------------------------------------------------------
 
@@ -209,26 +205,20 @@ def optimal_time(input_string):
 
     """
 
-    total_bytes, latency, bandwidth, n_chunks, all_chunks = \
-        parse_input(input_string)
+    total_bytes, data = parse_input(input_string)
 
     print "#-- Checking bytes"
-    if not byte_check(total_bytes, all_chunks):
+    if not byte_check(total_bytes, data.keys()):
         #raise ValueError("The image cannot be recovered with too few bytes")
         return
 
-    print "#-- Computing times"
-    times = {}
-    for start, stop in all_chunks:
-        times[(start, stop)] = read_time(stop - start, bandwidth, latency)
-
     print "#-- Finding the optimal value"
-    best_time = sum(times.values())
-    best_combination = all_chunks
+    best_time = sum(data.values())
+    best_combination = data.keys()
 
     print "#-- Computing Permutations"
-    for i, permutation in enumerate(generate_permutations(all_chunks)):
-        line_time = sum([times[item] for item in permutation])
+    for i, permutation in enumerate(generate_permutations(data.keys())):
+        line_time = sum([data[item] for item in permutation])
         if line_time < best_time:
             if byte_check(total_bytes, permutation):
                 best_time = line_time
