@@ -155,7 +155,7 @@ def byte_check(ref_bytes, chunks):
        Whether or not the data can be recovered
 
     """
-
+ 
     recovered_bytes = set()
 
     if isinstance(ref_bytes, int):
@@ -168,9 +168,9 @@ def byte_check(ref_bytes, chunks):
         raise ValueError("ref_bytes must be able to become a set")
 
     for start, stop in chunks:
-        recovered_bytes = recovered_bytes.union(set(range(start, stop)))
-        
-        if recovered_bytes == ref_bytes:
+        recovered_bytes = recovered_bytes.union(set(xrange(start, stop)))
+
+        if ref_bytes.issubset(recovered_bytes):
             return True
 
     return False
@@ -212,10 +212,12 @@ def optimal_time(input_string):
     total_bytes, latency, bandwidth, n_chunks, all_chunks = \
         parse_input(input_string)
 
+    print "#-- Checking bytes"
     if not byte_check(total_bytes, all_chunks):
         #raise ValueError("The image cannot be recovered with too few bytes")
         return
 
+    print "#-- Computing times"
     times = {}
     for start, stop in all_chunks:
         times[(start, stop)] = read_time(stop - start, bandwidth, latency)
@@ -232,7 +234,7 @@ def optimal_time(input_string):
                 best_time = line_time
                 best_combination = permutation
 
-    return best_time
+    return round(best_time, 3)
 
 #-------------------------------------------------------------------------------
 
