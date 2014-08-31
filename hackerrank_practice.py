@@ -54,6 +54,9 @@ def parse_input(input_string):
     all remaining lines are the individual chunks of data.  Each line contains
     the comma separated starting and ending indices of the data chunk in bytes.
 
+    basic data formatting checks will be done. Errors will be raised for badly
+    formatted lines but processing will attempt to continue with the valid data.
+
     Parameters:
     -----------
     input_string, str
@@ -82,6 +85,9 @@ def parse_input(input_string):
             print 'line {} error: {}'.format(i, e)
 
         all_chunks.append(data)
+
+    #-- Remove redundnacy of chunks
+    all_chunks = list(set(all_chunks))
 
     return total_bytes, latency, bandwidth, n_chunks, all_chunks
 
@@ -144,7 +150,6 @@ def byte_check(ref_bytes, chunks):
     else:
         raise ValueError("ref_bytes must be able to become a set")
 
-
     for start, stop in chunks:
         recovered_bytes = recovered_bytes.union(set(range(start, stop)))
         
@@ -152,6 +157,13 @@ def byte_check(ref_bytes, chunks):
             return True
 
     return False
+
+#-------------------------------------------------------------------------------
+
+def generate_permutations(all_chunks):
+    for i in xrange(1, len(all_chunks) + 1):
+        for permutation in combinations(all_chunks, i):
+            yield list(permutation)
 
 #-------------------------------------------------------------------------------
 
@@ -183,29 +195,25 @@ def optimal_time(input_string):
     total_bytes, latency, bandwidth, n_chunks, all_chunks = \
         parse_input(input_string)
 
-    #-- Making sure it's possible
     if not byte_check(total_bytes, all_chunks):
-        raise ValueError("The image cannot be recovered with too few bytes")
+        #raise ValueError("The image cannot be recovered with too few bytes")
+        return
 
-    #-- Computing times for each chunk
     times = {}
     for start, stop in all_chunks:
         times[(start, stop)] = read_time(stop - start, bandwidth, latency)
 
-    #-- Computing Permutations
-    permutations = []
-    for i in xrange(1, len(all_chunks) + 1):
-        permutations += list(combinations(all_chunks, i))
-
-    #-- Finding the optimal value
+    print "#-- Finding the optimal value"
     best_time = sum(times.values())
     best_combination = all_chunks
 
-    for line in permutations:
-        line_time = sum([times[item] for item in line])
-        if byte_check(total_bytes, line) and line_time < best_time:
-            best_time = line_time
-            best_combination = line
+    print "#-- Computing Permutations"
+    for i, permutation in enumerate(generate_permutations(all_chunks)):
+        line_time = sum([times[item] for item in permutation])
+        if line_time < best_time:
+            if byte_check(total_bytes, permutation):
+                best_time = line_time
+                best_combination = permutation
 
     return best_time
 

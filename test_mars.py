@@ -1,5 +1,8 @@
 import hackerrank_practice as hp
 import numpy as np
+
+from nose.tools import assert_raises
+
 #-------------------------------------------------------------------------------
 
 def test_given_cases():
@@ -41,3 +44,9 @@ def test_byte_check_fail():
 
     wrong_range = [(0, 20), (40, 80), (80, 100)]
     assert not hp.byte_check(80, wrong_range), "Didn't work with wrong range"
+
+#-------------------------------------------------------------------------------
+
+def test_bad_lines():
+    assert hp.optimal_time(open('crap_input.txt').read()) == \
+        float(open('output000.txt').read()), "crap test-case 0 failed"
