@@ -173,10 +173,49 @@ def byte_check(ref_bytes, chunks):
 
 #-------------------------------------------------------------------------------
 
+def get_leafs(start_node, all_nodes):
+    ### Try generator next
+    ### check boundary cases
+    return [node for node in all_nodes if (node != start_node and
+                                           node[0] >= start_node[0] and
+                                           node[0] <= start_node[1] and 
+                                           node[1] >= start_node[1])]
+
+#-------------------------------------------------------------------------------
+
+def generate_graph(data_dict):
+    graph = data_dict.copy()
+
+    for i, node in enumerate(graph.keys()):
+        leafs = get_leafs(node, graph.keys())
+        graph[node] = leafs
+
+        print i
+
+        if not len(leafs):
+            del graph[node]
+
+    return graph
+
+#-------------------------------------------------------------------------------
+
 def generate_permutations(all_chunks):
     for i in xrange(1, len(all_chunks) + 1):
         for permutation in combinations(all_chunks, i):
             yield list(permutation)
+
+#-------------------------------------------------------------------------------
+
+def dj(graph, init_node):
+    distance = graph.copy()
+    for key in distance:
+        if key == init_node:
+            distance[key] = 0
+        else:
+            distance[key] = 100000
+        
+
+   unvisited = set(graph.keys())
 
 #-------------------------------------------------------------------------------
 
@@ -207,22 +246,28 @@ def optimal_time(input_string):
 
     total_bytes, data = parse_input(input_string)
 
-    print "#-- Checking bytes"
-    if not byte_check(total_bytes, data.keys()):
-        #raise ValueError("The image cannot be recovered with too few bytes")
-        return
+    #print "#-- Checking bytes"
+    #if not byte_check(total_bytes, data.keys()):
+    #    #raise ValueError("The image cannot be recovered with too few bytes")
+    #    return
 
     print "#-- Finding the optimal value"
     best_time = sum(data.values())
     best_combination = data.keys()
+    print 'Worst time:', best_time
 
-    print "#-- Computing Permutations"
-    for i, permutation in enumerate(generate_permutations(data.keys())):
-        line_time = sum([data[item] for item in permutation])
-        if line_time < best_time:
-            if byte_check(total_bytes, permutation):
-                best_time = line_time
-                best_combination = permutation
+    print "#-- Generating graph"
+    graph = generate_graph(data)
+    print graph
+
+    #print "#-- Computing Permutations"
+    #for i, permutation in enumerate(generate_permutations(data.keys())):
+    #    line_time = sum([data[item] for item in permutation])
+    #    if line_time < best_time:
+    #        if byte_check(total_bytes, permutation):
+    #            print i
+    #            best_time = line_time
+    #            best_combination = permutation
 
     return round(best_time, 3)
 
