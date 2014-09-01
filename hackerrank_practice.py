@@ -5,17 +5,16 @@ import heapq as hq
 
 #-------------------------------------------------------------------------------
 
-def uniform_cost_search(g, cost_data, nbytes):
+def uniform_cost_search(cost_data, nbytes):
     explored = set()
     queue = []
 
-    #node = hq.nsmallest(1, g.keys())[0]
-    #hq.heappush(queue, (node, cost_data[node]) )
-    hq.heappush(queue, ((0, 1), 0, []) )
-    g[(0, 1)] = [key for key in g.keys() if key[0] == 0]
+    hq.heappush(queue, ((0, 1), 0, [(0, 1)]) )
 
     while len(queue):
         node, cost, path = hq.heappop(queue)
+
+        print 'At node:', node, cost, path
 
         if byte_check(nbytes, path):
             print 'Best cost', cost, 'Best path', path
@@ -23,7 +22,7 @@ def uniform_cost_search(g, cost_data, nbytes):
 
         explored.add(node)
 
-        for leaf in g[node]:
+        for leaf in get_leafs(node, cost_data.iterkeys()):
             leaf_cost = cost + cost_data[leaf]
 
             if not leaf in explored:
@@ -51,6 +50,9 @@ def generate_data(n_lines=100000):
         ofile.write('15\n')
         ofile.write('10\n')
         ofile.write('{}\n'.format(n_lines))
+
+        ofile.write('0,300\n')
+        ofile.write('1000,{}\n'.format(nbytes))
 
         for i in xrange(n_lines):
             start = random.randint(0, nbytes-2)
@@ -244,7 +246,7 @@ def generate_permutations(all_chunks):
     for i in xrange(1, len(all_chunks) + 1):
         for permutation in combinations(all_chunks, i):
             yield list(permutation)
-        
+
 #-------------------------------------------------------------------------------
 
 def optimal_time(input_string):
@@ -273,17 +275,12 @@ def optimal_time(input_string):
     """
 
     total_bytes, data = parse_input(input_string)
+    print 'Byte checking'
+    if not byte_check(total_bytes, data):
+        print 'No can do'
+        return
 
-    #print "#-- Checking bytes"
-    #if not byte_check(total_bytes, data.keys()):
-    #    #raise ValueError("The image cannot be recovered with too few bytes")
-    #    return
-
-    print "#-- Generating graph"
-    graph = generate_graph(data)
-    print graph
-
-    best_time = uniform_cost_search(graph, data, total_bytes)
+    best_time = uniform_cost_search(data, total_bytes)
 
     print best_time
     return round(best_time, 3)
