@@ -1,5 +1,44 @@
 import sys
 from itertools import combinations
+from collections import deque
+import heapq as hq
+
+#-------------------------------------------------------------------------------
+
+def uniform_cost_search(g, cost_data, nbytes):
+    explored = set()
+    queue = []
+
+    #node = hq.nsmallest(1, g.keys())[0]
+    #hq.heappush(queue, (node, cost_data[node]) )
+    hq.heappush(queue, ((0, 1), 0, []) )
+    g[(0, 1)] = [key for key in g.keys() if key[0] == 0]
+
+    while len(queue):
+        node, cost, path = hq.heappop(queue)
+
+        if byte_check(nbytes, path):
+            print 'Best cost', cost, 'Best path', path
+            return cost
+
+        explored.add(node)
+
+        for leaf in g[node]:
+            leaf_cost = cost + cost_data[leaf]
+
+            if not leaf in explored:
+                queue_nodes = [item[0] for item in queue]
+                queue_cost = [item[1] for item in queue]
+
+                if not leaf in queue_nodes:
+                    hq.heappush(queue, (leaf, leaf_cost, path + [leaf] ))
+
+                elif (leaf in queue_nodes) and leaf_cost < queue_cost[queue_nodes.index(leaf)]:
+                        node = leaf
+                        cost = leaf_cost
+                        hq.heappush(queue, (leaf, leaf_cost, path + [leaf] ))
+        
+    return None
 
 #-------------------------------------------------------------------------------
 
@@ -185,15 +224,17 @@ def get_leafs(start_node, all_nodes):
 
 def generate_graph(data_dict):
     graph = data_dict.copy()
+    all_nodes = graph.keys()
 
-    for i, node in enumerate(graph.keys()):
-        leafs = get_leafs(node, graph.keys())
+    for i, node in enumerate(all_nodes):
+
+        leafs = get_leafs(node, all_nodes)
         graph[node] = leafs
 
-        print i
+        print i, len(all_nodes)
 
-        if not len(leafs):
-            del graph[node]
+        #if not len(leafs):
+        #    del graph[node]
 
     return graph
 
@@ -203,20 +244,7 @@ def generate_permutations(all_chunks):
     for i in xrange(1, len(all_chunks) + 1):
         for permutation in combinations(all_chunks, i):
             yield list(permutation)
-
-#-------------------------------------------------------------------------------
-
-def dj(graph, init_node):
-    distance = graph.copy()
-    for key in distance:
-        if key == init_node:
-            distance[key] = 0
-        else:
-            distance[key] = 100000
         
-
-   unvisited = set(graph.keys())
-
 #-------------------------------------------------------------------------------
 
 def optimal_time(input_string):
@@ -251,24 +279,13 @@ def optimal_time(input_string):
     #    #raise ValueError("The image cannot be recovered with too few bytes")
     #    return
 
-    print "#-- Finding the optimal value"
-    best_time = sum(data.values())
-    best_combination = data.keys()
-    print 'Worst time:', best_time
-
     print "#-- Generating graph"
     graph = generate_graph(data)
     print graph
 
-    #print "#-- Computing Permutations"
-    #for i, permutation in enumerate(generate_permutations(data.keys())):
-    #    line_time = sum([data[item] for item in permutation])
-    #    if line_time < best_time:
-    #        if byte_check(total_bytes, permutation):
-    #            print i
-    #            best_time = line_time
-    #            best_combination = permutation
+    best_time = uniform_cost_search(graph, data, total_bytes)
 
+    print best_time
     return round(best_time, 3)
 
 #-------------------------------------------------------------------------------
