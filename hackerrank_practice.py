@@ -1,130 +1,105 @@
 import sys
-from itertools import combinations
 import heapq as hq
 
 #-------------------------------------------------------------------------------
 
-def uniform_cost_search(cost_data, nbytes):
-    """Perform uniform cost search analysis on input collection of nodes.
+def byte_check(ref_bytes, chunks):
+    """Check to see if the image recovery is possible.
 
+    chunks is assumed to be an iterable of (start, stop) byte pairs that are contigous
+    accross their range.  The check is performed to assert that there is contigous 
+    covrage of bytes from 0 to ref_bytes.
 
     Parameters:
     -----------
-    cost_data : dict
-        dictionary of node, cost pairs
-    nbytes : int
-        number of bytes indicating success
+    ref_bytes : int, iterable
+        bytes in the original data.
+    chunks : list of tuples
+        list of (start, stop) bytes as output by parse_input
 
     Returns:
     --------
-    cost : float, None
-        cost of the cheapest path, or None if no valid path found
+    recovery_possible : bool
+       Whether or not the data can be recovered
 
     """
 
-    explored = set()
-    queue = []
+    if not len(chunks):
+        return False
 
-    #start_node = hq.nsmallest(1, cost_data.keys())[0]
-    #hq.heappush(queue, (cost_data[start_node], start_node, [start_node]))
-    #-- Initialize queue at a zero-cost origin
-    hq.heappush(queue, (0, (0, 1), [(0, 1)]) )
+    chunks = sorted(chunks)
 
-    while len(queue):
-        cost, node, path = hq.heappop(queue)
-        print 'At node:', node, cost, path
+    byte_min, byte_max = chunks[0]
 
-        #-- Exit on success condition of containing all needed bytes
-        if byte_check(nbytes, path):
-            print 'Best cost', cost, 'Best path', path
-            return cost
+    for start, stop in chunks[1:]:
+        if (start >= byte_min) and (start <= byte_max) and (stop > byte_max):
+            byte_max = stop
 
-        explored.add(node)
-
-        for leaf in get_leafs(node, cost_data.iterkeys()):
-            leaf_cost = cost + cost_data[leaf]
-
-            if not leaf in explored:    
-                queue_cost = [item[0] for item in queue]
-                queue_nodes = [item[1] for item in queue]
-
-                if not leaf in queue_nodes:
-                    hq.heappush(queue, (leaf_cost, leaf, path + [leaf] ))
-
-                elif (leaf in queue_nodes):
-                    leaf_index = queue_nodes.index(leaf)
-                    if leaf_cost < queue_cost[leaf_index]:
-                        queue[leaf_index] = (leaf_cost, leaf, path + [leaf])
-                        hq.heapify(queue)
-                        
-        
-    return None
+    if (byte_min, byte_max) == (0, ref_bytes):
+        return True
+    else:
+        return False
 
 #-------------------------------------------------------------------------------
 
-def generate_data(n_lines=100000):
-    """Quick function to generate large random datasets for testing
-    """
+def get_leafs(start_node, all_nodes):
+    """Find leaf nodes from the given starting node.
 
-    import random
-    nbytes = n_lines // 2
-
-    with open('large_data.txt', 'w') as ofile:
-        ofile.write('{}\n'.format(nbytes))
-        ofile.write('15\n')
-        ofile.write('10\n')
-        ofile.write('{}\n'.format(n_lines))
-
-        ofile.write('0,10\n')
-        ofile.write('{},{}\n'.format(nbyes//2, nbytes))
-
-        for i in xrange(n_lines):
-            start = random.randint(0, nbytes-2)
-            end = random.randint(start+1, nbytes-1)
-            ofile.write('{},{}\n'.format(start, end))
-
-#-------------------------------------------------------------------------------
-
-def parse_line(line):
-    """Check line formatting and parse data.
-
-    Lines must be two integers separated by a comma.  Lines that do not meet the 
-    criteria will raise an exception, lines which pass are returned as tuples of 
-    ints.
 
     Parameters:
     -----------
-    line : str
-        line to be checked
+    start_node : tuple
+        node from which to find leaves
+    all_nodes: list
+        list of all available nodes
 
-    Returns: 
+    Returns:
     --------
-    data : tuple
-        (start, stop) from input line
-
-    Raises:
-    -------
-    ValueError if data not properly formatted
+    node_iterator : generator expression
+        iterable generator of available leaf nodes
 
     """
 
-    line = line.strip()
+    return (node for node in all_nodes if (node != start_node and
+                                           node[0] >= start_node[0] and
+                                           node[0] <= start_node[1] and 
+                                           node[1] >= start_node[1]))
 
-    if not line:
-        raise ValueError("No data in line")
-    if not ',' in line:
-        raise ValueError("No comma in line")
+#-------------------------------------------------------------------------------
 
-    line = line.split(',')
-    if not len(line) == 2:
-        raise ValueError("Too many data values")
+def optimal_time(input_string):
+    """Find the best-case downlink time from the available data-chunks.
 
-    try:
-        data = (int(line[0]), int(line[1]))
-    except:
-        raise ValueError("Cannot convert line to ints")
+    Assumed formatting of input_string:
+    first line is the integer number of bytes in the original file.
+    second line is the integer latency of the connection in seconds.
+    third line is the bandwidth in bytes per second.
+    fourth line is the number of data chunks.
 
-    return data
+    all remaining lines are the individual chunks of data.  Each line contains
+    the comma separated starting and ending indices of the data chunk in bytes.
+
+
+    Parameters:
+    -----------
+    input_string, str
+        string containing the formatted input data
+
+    Returns:
+    --------
+    best_time : float
+        the smallest amount of time to read the data for the entire image
+
+    """
+
+    total_bytes, data = parse_input(input_string)
+
+    if not byte_check(total_bytes, data):
+        return None
+
+    best_time = uniform_cost_search(data, total_bytes)
+
+    return best_time
 
 #-------------------------------------------------------------------------------
 
@@ -175,6 +150,49 @@ def parse_input(input_string):
 
 #-------------------------------------------------------------------------------
 
+def parse_line(line):
+    """Check line formatting and parse data.
+
+    Lines must be two integers separated by a comma.  Lines that do not meet the 
+    criteria will raise an exception, lines which pass are returned as tuples of 
+    ints.
+
+    Parameters:
+    -----------
+    line : str
+        line to be checked
+
+    Returns: 
+    --------
+    data : tuple
+        (start, stop) from input line
+
+    Raises:
+    -------
+    ValueError if data not properly formatted
+
+    """
+
+    line = line.strip()
+
+    if not line:
+        raise ValueError("No data in line")
+    if not ',' in line:
+        raise ValueError("No comma in line")
+
+    line = line.split(',')
+    if not len(line) == 2:
+        raise ValueError("Too many data values")
+
+    try:
+        data = (int(line[0]), int(line[1]))
+    except:
+        raise ValueError("Cannot convert line to ints")
+
+    return data
+
+#-------------------------------------------------------------------------------
+
 def read_time(size, bandwidth, latency):
     """Calculate the time to link and read a chunk of data.
 
@@ -198,153 +216,194 @@ def read_time(size, bandwidth, latency):
 
 #-------------------------------------------------------------------------------
 
-def byte_check(ref_bytes, chunks):
-    """Check to see if the image recovery is possible.
-
-    Assemble set of input bytes from each chunk until the recovered set matches
-    that in the reference bytes.  The first instance of the two sets matching
-    will cause a return with True.  The sets not matching after all chunks 
-    have been parsed will return False.
-
-    Parameters:
-    -----------
-    ref_bytes : int, iterable
-        bytes in the original data.  if int, bytes will assume to start from 0.
-        if iterable, conversion to set will be attempted.
-    chunks : list of tuples
-        list of (start, stop) bytes as output by parse_input
-
-    Returns:
-    --------
-    recovery_possible : bool
-       Whether or not the data can be recovered
-
-    """
- 
-    recovered_bytes = set()
-
-    if isinstance(ref_bytes, int):
-        ref_bytes = set(range(ref_bytes))
-    elif isinstance(ref_bytes, (list, tuple, str)):
-        ref_bytes = set(ref_bytes)
-    elif isinstance(ref_bytes, set):
-        pass
-    else:
-        raise ValueError("ref_bytes must be able to become a set")
-
-    for start, stop in chunks:
-        recovered_bytes = recovered_bytes.union(set(xrange(start, stop)))
-
-        if ref_bytes.issubset(recovered_bytes):
-            return True
-
-    return False
-
-#-------------------------------------------------------------------------------
-
-def get_leafs(start_node, all_nodes):
-    """Find leaf nodes from the given starting node.
+def uniform_cost_search(cost_data, nbytes):
+    """Perform uniform cost search analysis on input collection of nodes.
 
 
     Parameters:
     -----------
-    start_node : tuple
-        node from which to find leaves
-    all_nodes: list
-        list of all available nodes
+    cost_data : dict
+        dictionary of node, cost pairs
+    nbytes : int
+        number of bytes indicating success
 
     Returns:
     --------
-    node_iterator : generator expression
-        iterable generator of available leaf nodes
+    cost : float, None
+        cost of the cheapest path, or None if no valid path found
 
     """
 
-    return (node for node in all_nodes if (node != start_node and
-                                           node[0] >= start_node[0] and
-                                           node[0] <= start_node[1] and 
-                                           node[1] >= start_node[1]))
+    explored = set()
+    queue = []
+
+    #-- Initialize queue at a zero-cost origin
+    hq.heappush(queue, (0, (0, 1), [(0, 1)]) )
+
+    while len(queue):
+        cost, node, path = hq.heappop(queue)
+
+        #-- Exit on success condition of containing all needed bytes
+        if byte_check(nbytes, path):
+            return cost
+
+        explored.add(node)
+
+        for leaf in get_leafs(node, cost_data.iterkeys()):
+            leaf_cost = cost + cost_data[leaf]
+
+            if not leaf in explored:    
+                queue_cost = [item[0] for item in queue]
+                queue_nodes = [item[1] for item in queue]
+
+                if not leaf in queue_nodes:
+                    hq.heappush(queue, (leaf_cost, leaf, path + [leaf] ))
+
+                elif (leaf in queue_nodes):
+                    leaf_index = queue_nodes.index(leaf)
+                    if leaf_cost < queue_cost[leaf_index]:
+                        queue[leaf_index] = (leaf_cost, leaf, path + [leaf])
+                        hq.heapify(queue)
+                        
+        
+    return None
 
 #-------------------------------------------------------------------------------
 
-def generate_graph(data_dict, prune=False):
-    """Create graph from input data
+def test_byte_check_pass():
+    """Check cases for which the byte_check function should pass
+    """
 
-    Parameters:
-    -----------
-    data_dict : dict
-        dict of nodes
-    prune : bool, optional
-        remove nodes with no leafs
+    overlapping = [(0, 20), (10, 20), (5, 40)]
+    assert byte_check(40, overlapping), "Didn't work with overlapping values"
 
-    Returns:
-    --------
-    graph : dict
-        node, leaf-list dictionary
+    single = [(0, 20)]
+    assert byte_check(20, single), "Didn't work with single chunk"
+
+    edges = [(0, 20), (20, 40), (40, 100)]
+    assert byte_check(100, edges), "Didn't work with just touching edges"
+
+    copies = [(0, 20), (20, 40), (40, 100), (40, 100)]
+    assert byte_check(100, copies), "Didn't work with copies"
+
+#-------------------------------------------------------------------------------
+
+def test_byte_check_fail():
+    """Check cases for which the byte check function should fail
+    """
+
+    gap = [(0, 20), (21, 40), (40, 80)]
+    assert not byte_check(80, gap), "Didn't fail with single value gapped data"
+
+    gap.append((100, 200))
+    assert not byte_check(80, gap), "Didn't fail with large gap"
+
+    wrong_range = [(0, 20), (40, 80), (80, 100)]
+    assert not byte_check(80, wrong_range), "Didn't fail with wrong range"
+
+    assert not byte_check(80, []), "Didn't fail with empty chunks"
+
+    assert not byte_check(80, [(1, 20), (20, 80)]), "Didn't fail with missing 0"
+
+#-------------------------------------------------------------------------------
+
+def test_parsing():
+    """Test string parsing functions
+    """
+    from nose.tools import assert_raises
+
+    assert parse_line('500,600') == (500,600), 'Failed on OK string'
+    assert_raises(ValueError, parse_line, '500,600,700')
+    assert_raises(ValueError, parse_line, '500600')
+    assert_raises(ValueError, parse_line, '')
+    assert_raises(ValueError, parse_line, '500,six')
+
+
+    #--Check input parsing from mangled input
+    input_string = '2000\n'
+    input_string += '15\n'
+    input_string += '10\n'
+    input_string += '7\n'
+    input_string += '0,200\n'
+    input_string += '200,400\n'
+    input_string += '400,600,1000\n'
+    input_string += '600,800\n'
+    input_string += '800,1000\n'
+    input_string += '\n'
+    input_string += '1000,2000\n'
+    input_string += 'adfsa\n'
+    input_string += '0,1800\n'
+
+    assert parse_input(input_string) == (2000,  {(0, 200): 50.0,
+                                                 (0, 1800): 210.0,
+                                                 (200, 400): 50.0,
+                                                 (600, 800): 50.0,
+                                                 (800, 1000): 50.0,
+                                                 (1000, 2000): 130.0})
+
+#-------------------------------------------------------------------------------
+
+def test_given_cases():
+    """Check the two input/output cases supplied in the instructions
+    """
+
+    assert optimal_time(open('input000.txt').read()) == \
+        float(open('output000.txt').read()), "test-case 0 failed"
     
-    """
-
-    graph = data_dict.copy()
-    all_nodes = graph.keys()
-
-    for i, node in enumerate(all_nodes):
-
-        leafs = get_leafs(node, all_nodes)
-        graph[node] = leafs
-
-        print i, len(all_nodes)
-
-        if prune and not len(leafs):
-            del graph[node]
-
-    return graph
+    assert optimal_time(open('input001.txt').read()) == \
+        float(open('output001.txt').read()), "test-case 1 failed"
 
 #-------------------------------------------------------------------------------
 
-def generate_permutations(all_chunks):
-    """Create list of all possible combination of input iterable.
-
+def test_read_time():
+    """Check basic math of the read_time function
     """
 
-    for i in xrange(1, len(all_chunks) + 1):
-        for permutation in combinations(all_chunks, i):
-            yield list(permutation)
+    assert read_time(10, 10, 10) == 21, "Incorrect calculation with ints"
+    assert read_time(10.0, 10.0, 10.0) == 21, "Incorrect calculation with floats"
+    assert read_time(5, 2, 1) == 4.5, "Int division not handled"
 
 #-------------------------------------------------------------------------------
 
-def optimal_time(input_string):
-    """Find the best-case downlink time from the available data-chunks.
-
-    Assumed formatting of input_string:
-    first line is the integer number of bytes in the original file.
-    second line is the integer latency of the connection in seconds.
-    third line is the bandwidth in bytes per second.
-    fourth line is the number of data chunks.
-
-    all remaining lines are the individual chunks of data.  Each line contains
-    the comma separated starting and ending indices of the data chunk in bytes.
-
-
-    Parameters:
-    -----------
-    input_string, str
-        string containing the formatted input data
-
-    Returns:
-    --------
-    best_time : float
-        the smallest amount of time to read the data for the entire image
-
+def test_ucs():
+    """Test that the uniform cost search algorithm correctly finds the shortest
+    path or returns None
     """
+    
+    nbytes = 2000
+    cost_data = {(0, 200):5,
+                 (200, 400):5,
+                 (400, 600):5,
+                 (600, 800):5,
+                 (800, 1000):5,
+                 (0, 2000):3,
+                 (1000, 2000):5}
 
-    total_bytes, data = parse_input(input_string)
+    #-- Known shortest path of single chunk
+    assert uniform_cost_search(cost_data, nbytes) == 3, 'Failed to find shortest'
 
-    best_time = uniform_cost_search(data, total_bytes)
+    #-- New shortest path of two chunks
+    cost_data[(0, 500)] = 1
+    cost_data[(500, 2000)] = 1
+    assert uniform_cost_search(cost_data, nbytes) == 2, \
+        'Failed with two chunk path'
 
-    if best_time:
-        return round(best_time, 3)
+    #-- Single chunk
+    cost_data = {(0, 2000):5}
+    assert uniform_cost_search(cost_data, nbytes) == 5, \
+        'Failed to find shortest path with only 1 chunk'
+
+    #-- No valid path through
+    cost_data = {(1, 200):5,
+                 (500, 700):10}
+    assert uniform_cost_search(cost_data, nbytes) == None, \
+        'Failed to return None with no valid path'
 
 #-------------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    print optimal_time(sys.stdin.read())
+    best_time = optimal_time(sys.stdin.read())
+    
+    if best_time:
+        print "{0:.3f}".format(best_time)
+    
