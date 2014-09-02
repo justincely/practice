@@ -50,3 +50,33 @@ def test_byte_check_fail():
 def test_bad_lines():
     assert hp.optimal_time(open('crap_input.txt').read()) == \
         float(open('output000.txt').read()), "crap test-case 0 failed"
+
+#-------------------------------------------------------------------------------
+
+def test_ucs():
+    cost_data = {(0,200):5,
+                 (200,400):5,
+                 (400,600):5,
+                 (600,800):5,
+                 (800,1000):5,
+                 (0, 2000):3,
+                 (1000,2000):5}
+
+    nbytes = 2000
+
+    assert hp.uniform_cost_search(cost_data, nbytes) == 3, 'nope'
+
+    cost_data[(0, 500)] = 1
+    cost_data[(500, 2000)] = 1
+
+    assert hp.uniform_cost_search(cost_data, nbytes) == 2, 'nope'
+
+    cost_data = {(0, 2000):3}
+
+    assert hp.uniform_cost_search(cost_data, nbytes) == 3, 'nope'
+
+    cost_data = {(1,200):5}
+
+    assert hp.uniform_cost_search(cost_data, nbytes) == None, 'nope'
+
+#-------------------------------------------------------------------------------

@@ -1,21 +1,40 @@
 import sys
 from itertools import combinations
-from collections import deque
 import heapq as hq
 
 #-------------------------------------------------------------------------------
 
 def uniform_cost_search(cost_data, nbytes):
+    """Perform uniform cost search analysis on input collection of nodes.
+
+
+    Parameters:
+    -----------
+    cost_data : dict
+        dictionary of node, cost pairs
+    nbytes : int
+        number of bytes indicating success
+
+    Returns:
+    --------
+    cost : float, None
+        cost of the cheapest path, or None if no valid path found
+
+    """
+
     explored = set()
     queue = []
 
-    hq.heappush(queue, ((0, 1), 0, [(0, 1)]) )
+    #start_node = hq.nsmallest(1, cost_data.keys())[0]
+    #hq.heappush(queue, (cost_data[start_node], start_node, [start_node]))
+    #-- Initialize queue at a zero-cost origin
+    hq.heappush(queue, (0, (0, 1), [(0, 1)]) )
 
     while len(queue):
-        node, cost, path = hq.heappop(queue)
-
+        cost, node, path = hq.heappop(queue)
         print 'At node:', node, cost, path
 
+        #-- Exit on success condition of containing all needed bytes
         if byte_check(nbytes, path):
             print 'Best cost', cost, 'Best path', path
             return cost
@@ -25,25 +44,30 @@ def uniform_cost_search(cost_data, nbytes):
         for leaf in get_leafs(node, cost_data.iterkeys()):
             leaf_cost = cost + cost_data[leaf]
 
-            if not leaf in explored:
-                queue_nodes = [item[0] for item in queue]
-                queue_cost = [item[1] for item in queue]
+            if not leaf in explored:    
+                queue_cost = [item[0] for item in queue]
+                queue_nodes = [item[1] for item in queue]
 
                 if not leaf in queue_nodes:
-                    hq.heappush(queue, (leaf, leaf_cost, path + [leaf] ))
+                    hq.heappush(queue, (leaf_cost, leaf, path + [leaf] ))
 
-                elif (leaf in queue_nodes) and leaf_cost < queue_cost[queue_nodes.index(leaf)]:
-                        node = leaf
-                        cost = leaf_cost
-                        hq.heappush(queue, (leaf, leaf_cost, path + [leaf] ))
+                elif (leaf in queue_nodes):
+                    leaf_index = queue_nodes.index(leaf)
+                    if leaf_cost < queue_cost[leaf_index]:
+                        queue[leaf_index] = (leaf_cost, leaf, path + [leaf])
+                        hq.heapify(queue)
+                        
         
     return None
 
 #-------------------------------------------------------------------------------
 
 def generate_data(n_lines=100000):
+    """Quick function to generate large random datasets for testing
+    """
+
     import random
-    nbytes = n_lines * 2
+    nbytes = n_lines // 2
 
     with open('large_data.txt', 'w') as ofile:
         ofile.write('{}\n'.format(nbytes))
@@ -51,8 +75,8 @@ def generate_data(n_lines=100000):
         ofile.write('10\n')
         ofile.write('{}\n'.format(n_lines))
 
-        ofile.write('0,300\n')
-        ofile.write('1000,{}\n'.format(nbytes))
+        ofile.write('0,10\n')
+        ofile.write('{},{}\n'.format(nbyes//2, nbytes))
 
         for i in xrange(n_lines):
             start = random.randint(0, nbytes-2)
@@ -63,6 +87,10 @@ def generate_data(n_lines=100000):
 
 def parse_line(line):
     """Check line formatting and parse data.
+
+    Lines must be two integers separated by a comma.  Lines that do not meet the 
+    criteria will raise an exception, lines which pass are returned as tuples of 
+    ints.
 
     Parameters:
     -----------
@@ -101,9 +129,9 @@ def parse_line(line):
 #-------------------------------------------------------------------------------
 
 def parse_input(input_string):
-    """Split input data string into the various telemetry data according 
-    to given formatting guidelines.
+    """Split input data string into the various telemetry data
 
+    According to given requirements:
     first line is the integer number of bytes in the original file.
     second line is the integer latency of the connection in seconds.
     third line is the bandwidth in bytes per second.
@@ -215,16 +243,47 @@ def byte_check(ref_bytes, chunks):
 #-------------------------------------------------------------------------------
 
 def get_leafs(start_node, all_nodes):
-    ### Try generator next
-    ### check boundary cases
-    return [node for node in all_nodes if (node != start_node and
+    """Find leaf nodes from the given starting node.
+
+
+    Parameters:
+    -----------
+    start_node : tuple
+        node from which to find leaves
+    all_nodes: list
+        list of all available nodes
+
+    Returns:
+    --------
+    node_iterator : generator expression
+        iterable generator of available leaf nodes
+
+    """
+
+    return (node for node in all_nodes if (node != start_node and
                                            node[0] >= start_node[0] and
                                            node[0] <= start_node[1] and 
-                                           node[1] >= start_node[1])]
+                                           node[1] >= start_node[1]))
 
 #-------------------------------------------------------------------------------
 
-def generate_graph(data_dict):
+def generate_graph(data_dict, prune=False):
+    """Create graph from input data
+
+    Parameters:
+    -----------
+    data_dict : dict
+        dict of nodes
+    prune : bool, optional
+        remove nodes with no leafs
+
+    Returns:
+    --------
+    graph : dict
+        node, leaf-list dictionary
+    
+    """
+
     graph = data_dict.copy()
     all_nodes = graph.keys()
 
@@ -235,14 +294,18 @@ def generate_graph(data_dict):
 
         print i, len(all_nodes)
 
-        #if not len(leafs):
-        #    del graph[node]
+        if prune and not len(leafs):
+            del graph[node]
 
     return graph
 
 #-------------------------------------------------------------------------------
 
 def generate_permutations(all_chunks):
+    """Create list of all possible combination of input iterable.
+
+    """
+
     for i in xrange(1, len(all_chunks) + 1):
         for permutation in combinations(all_chunks, i):
             yield list(permutation)
@@ -275,15 +338,11 @@ def optimal_time(input_string):
     """
 
     total_bytes, data = parse_input(input_string)
-    print 'Byte checking'
-    if not byte_check(total_bytes, data):
-        print 'No can do'
-        return
 
     best_time = uniform_cost_search(data, total_bytes)
 
-    print best_time
-    return round(best_time, 3)
+    if best_time:
+        return round(best_time, 3)
 
 #-------------------------------------------------------------------------------
 
