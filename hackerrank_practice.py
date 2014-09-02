@@ -1,3 +1,13 @@
+"""Solution to the Mars Rover challeng for Counsyl by Justin Ely.
+
+The algorithm used is a well-known polynomial time solution of O(b**(c/e)) 
+where b is the branching factor, c is the cost of the optimal solution, and 
+the edge cost >= e > 0. This algorithm was chosen because it was complete and
+implementable with the time available and my minimal prior experience in the
+subject.  
+
+"""
+
 import sys
 import heapq as hq
 
@@ -6,13 +16,13 @@ import heapq as hq
 def byte_check(ref_bytes, chunks):
     """Check to see if the image recovery is possible.
 
-    chunks is assumed to be an iterable of (start, stop) byte pairs that are contigous
-    accross their range.  The check is performed to assert that there is contigous 
-    covrage of bytes from 0 to ref_bytes.
+    chunks is assumed to be an iterable of (start, stop) byte pairs that
+    are contigous accross their range.  The check is performed to assert 
+    that there is contigous covrage of bytes from 0 to ref_bytes.
 
     Parameters:
     -----------
-    ref_bytes : int, iterable
+    ref_bytes : int
         bytes in the original data.
     chunks : list of tuples
         list of (start, stop) bytes as output by parse_input
@@ -44,7 +54,6 @@ def byte_check(ref_bytes, chunks):
 
 def get_leafs(start_node, all_nodes):
     """Find leaf nodes from the given starting node.
-
 
     Parameters:
     -----------
@@ -153,9 +162,9 @@ def parse_input(input_string):
 def parse_line(line):
     """Check line formatting and parse data.
 
-    Lines must be two integers separated by a comma.  Lines that do not meet the 
-    criteria will raise an exception, lines which pass are returned as tuples of 
-    ints.
+    Lines must be two integers separated by a comma.  Lines that do not meet 
+    the criteria will raise an exception, lines which pass are returned as 
+    tuples of ints.
 
     Parameters:
     -----------
@@ -313,6 +322,7 @@ def test_parsing():
     from nose.tools import assert_raises
 
     assert parse_line('500,600') == (500,600), 'Failed on OK string'
+    assert parse_line('500, 600') == (500,600), 'Failed on OK string'
     assert_raises(ValueError, parse_line, '500,600,700')
     assert_raises(ValueError, parse_line, '500600')
     assert_raises(ValueError, parse_line, '')
@@ -343,6 +353,28 @@ def test_parsing():
 
 #-------------------------------------------------------------------------------
 
+def test_leafs():
+    """Test the leaf-finding logic
+    """
+
+    node = (0, 5)
+    all_nodes = [(20, 40), (30, 40), (0, 10), (0, 40), (0, 2)]
+    assert set(get_leafs(node, all_nodes)) == set([(0, 10), (0, 40)]), \
+        "Failed to find leafs from same-start cases"
+
+    node = (10, 25)
+    assert set(get_leafs(node, all_nodes)) == set([(20, 40)]), \
+        "Failed to find leafs from intersecting case"
+
+    node = (10, 19)
+    assert set(get_leafs(node, all_nodes)) == set(), \
+        "Failed to find 0 leafs from full set of nodes."
+
+    assert set(get_leafs((0, 1), [])) == set(), \
+        "Failed to find 0 leafs from empty set of nodes."
+
+#-------------------------------------------------------------------------------
+
 def test_given_cases():
     """Check the two input/output cases supplied in the instructions
     """
@@ -360,7 +392,7 @@ def test_read_time():
     """
 
     assert read_time(10, 10, 10) == 21, "Incorrect calculation with ints"
-    assert read_time(10.0, 10.0, 10.0) == 21, "Incorrect calculation with floats"
+    assert read_time(10.0, 10.0, 10.0) == 21, "Incorrect calculation of floats"
     assert read_time(5, 2, 1) == 4.5, "Int division not handled"
 
 #-------------------------------------------------------------------------------
@@ -380,7 +412,8 @@ def test_ucs():
                  (1000, 2000):5}
 
     #-- Known shortest path of single chunk
-    assert uniform_cost_search(cost_data, nbytes) == 3, 'Failed to find shortest'
+    assert uniform_cost_search(cost_data, nbytes) == 3, \
+        'Failed to find shortest path of 1 chunk'
 
     #-- New shortest path of two chunks
     cost_data[(0, 500)] = 1
@@ -391,7 +424,7 @@ def test_ucs():
     #-- Single chunk
     cost_data = {(0, 2000):5}
     assert uniform_cost_search(cost_data, nbytes) == 5, \
-        'Failed to find shortest path with only 1 chunk'
+        'Failed to find shortest path from only 1 chunk'
 
     #-- No valid path through
     cost_data = {(1, 200):5,
