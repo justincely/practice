@@ -1,13 +1,3 @@
-"""Solution to the Mars Rover challeng for Counsyl by Justin Ely.
-
-The algorithm used is a well-known polynomial time solution of O(b**(c/e)) 
-where b is the branching factor, c is the cost of the optimal solution, and 
-the edge cost >= e > 0. This algorithm was chosen because it was complete and
-implementable with the time available and my minimal prior experience in the
-subject.  
-
-"""
-
 import sys
 import heapq as hq
 
