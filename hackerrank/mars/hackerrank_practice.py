@@ -1,5 +1,6 @@
 import sys
 import heapq as hq
+from collections import namedtuple
 
 #-------------------------------------------------------------------------------
 
@@ -235,9 +236,10 @@ def uniform_cost_search(cost_data, nbytes):
 
     explored = set()
     queue = []
+    node_info = namedtuple('point', 'cost chunk path')
 
     #-- Initialize queue at a zero-cost origin
-    hq.heappush(queue, (0, (0, 1), [(0, 1)]) )
+    hq.heappush(queue, node_info(0, (0, 1), [(0, 1)]) )
 
     while len(queue):
         cost, node, path = hq.heappop(queue)
@@ -252,11 +254,11 @@ def uniform_cost_search(cost_data, nbytes):
             leaf_cost = cost + cost_data[leaf]
 
             if not leaf in explored:    
-                queue_cost = [item[0] for item in queue]
-                queue_nodes = [item[1] for item in queue]
+                queue_cost = [item.cost for item in queue]
+                queue_nodes = [item.chunk for item in queue]
 
                 if not leaf in queue_nodes:
-                    hq.heappush(queue, (leaf_cost, leaf, path + [leaf] ))
+                    hq.heappush(queue, node_info(leaf_cost, leaf, path + [leaf]))
 
                 elif (leaf in queue_nodes):
                     leaf_index = queue_nodes.index(leaf)
