@@ -3,10 +3,10 @@ def isprime?(number)
 
   if number == 2
     return true
-  elsif (number < 2) | (number % 2 == 0) 
+  elsif (number < 2) | (number % 2 == 0)
     return false
   else
-    for value in 3...number
+    for value in 3...Math.sqrt(number)
       if number % value == 0
         return false
       end
