@@ -1,0 +1,30 @@
+body
+{
+  background-color: #cacaca;
+  color: white;
+}
+
+#title
+{
+  text-align: center;
+}
+
+.class
+{
+
+
+}
+
+section
+{
+  border: 3px solid black;
+  margin: 10%;
+  padding: 5px;
+  background-color: blue;
+  color: white;
+}
+
+p
+{
+  color: green;
+}
