@@ -9,16 +9,25 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js">
 </script>
 
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js">
+</script>
+
 <script>
 $(document).ready(function(){
   $(".title").click(function(){
     $("h2").hide();
   })
 });
-
-
-
 </script>
+
+
+<script>
+function displayMessage(){
+  var userName = document.getElementById("userName").value;
+  document.getElementById("message").innerHTML = "Hello " + userName;
+};
+</script>
+
 
 <body>
   <nav>
@@ -32,6 +41,15 @@ $(document).ready(function(){
   <h1 id="title" onmouseover="change()" onmouseout="changeBack()">My lovely first webpage</h1>
 
   <h2 class="title">It really is quite lovely</h2>
+
+  <section ng-app="">
+    What's your name?
+    <input type="text" ng-model='name'> </br>
+
+    <span>{{name}}</span>
+  </section>
+
+
 
   <section>
     Hello World...again.
