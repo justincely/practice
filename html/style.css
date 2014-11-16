@@ -4,16 +4,27 @@ body
   color: white;
 }
 
-#title
+nav
+{
+  margin-left: 5%;
+  margin-right: 5%;
+  background-color: blue;
+  border: 3px solid black;
+}
+
+nav a
+{
+  text-align: center;
+  display: inline-block;
+  color: white;
+  width: 11%;
+}
+
+.title
 {
   text-align: center;
 }
 
-.class
-{
-
-
-}
 
 section
 {
@@ -24,7 +35,15 @@ section
   color: white;
 }
 
-p
+footer
 {
-  color: green;
+  background-color: blue;
+  color: white;
+  border: 3px solid black;
+  margin: 5%;
+  width: 90%;
+  text-align: center;
+
+  position: relative;
+  bottom: 5px;
 }
