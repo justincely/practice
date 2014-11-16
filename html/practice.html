@@ -15,7 +15,7 @@
     <a href="myotherpage.html">Home<a>
   </nav>
 
-  <h1 class="title">My lovely first webpage</h1>
+  <h1 id="title" onmouseover="change()" onmouseout="changeBack()">My lovely first webpage</h1>
 
   <h2 class="title">It really is quite lovely</h2>
 
@@ -31,6 +31,16 @@
   <footer>
     This is the smelly feet of the page.
   </footer>
+
+<script>
+function change(){
+  document.getElementById("title").innerHTML = "I can use JavaScript";
+}
+
+function changeBack() {
+  document.getElementById("title").innerHTML = "My levely first webpage";
+}
+</script>
 
 </body>
 </html>
