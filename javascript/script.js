@@ -1,20 +1,64 @@
 window.onload = initAll;
+var usedNums = new Array(76);
+
+//------------------------------------------------------------------------------
 
 function initAll() {
   if (document.getElementById){
-    for (var i=0; i<24; i++){
-      setSquare(i);
-    }
+    document.getElementById("reload").onclick = anotherCard;
+    newCard();
   }
   else {
     alert("Sorry, this script is not supported by your browswer.");
   }
 }
 
+//------------------------------------------------------------------------------
+
+function anotherCard() {
+  for (var i=1; i<usedNums.length; i++){
+    usedNums[i] = false;
+  }
+
+  newCard();
+  return false;
+}
+
+//------------------------------------------------------------------------------
+
+function newCard() {
+  for (var i=0; i<24; i++){
+    setSquare(i);
+  }
+}
+
+//------------------------------------------------------------------------------
 
 function setSquare(thisSquare) {
   var currSquare = "square" + thisSquare;
-  var newNum = Math.floor(Math.random() * 75) + 1;
 
+  var colPlace = new Array(0, 0, 0, 0, 0,
+                           1, 1, 1, 1, 1,
+                           2, 2, 2, 2,
+                           3, 3, 3, 3, 3,
+                           4, 4, 4, 4, 4);
+
+  var colBasis = colPlace[thisSquare] * 15;
+  var newNum;
+
+
+  do {
+    newNum = colBasis + getNewNum() + 1;
+  }
+  while (usedNums[newNum]);
+
+  usedNums[newNum] = true;
   document.getElementById(currSquare).innerHTML = newNum;
+
+}
+
+//------------------------------------------------------------------------------
+
+function getNewNum() {
+  return Math.floor(Math.random() * 15);
 }
