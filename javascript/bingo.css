@@ -25,5 +25,9 @@ th, td {
 }
 
 #free, .pickedBG{
-  background-color: #f66;
+  background-color: #f16;
+}
+
+.winningBG {
+  background-color: #0000FF;
 }

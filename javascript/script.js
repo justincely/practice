@@ -34,6 +34,50 @@ function newCard() {
 
 //------------------------------------------------------------------------------
 
+function checkWin() {
+  var winningOption = -1;
+  var setSquares = 0;
+  var winners = new Array(31,
+                          992,
+                          15360,
+                          507904,
+                          541729,
+                          557328,
+                          1083458,
+                          2162820,
+                          4329736,
+                          8519745,
+                          8659472,
+                          16252928);
+
+  for (var i=0; i<24; i++) {
+    var currSquare = "square" + i;
+    if (document.getElementById(currSquare).className != ""){
+      document.getElementById(currSquare).className = "pickedBG";
+      setSquares = setSquares | Math.pow(2, i);
+    }
+  }
+
+  for (var i=0; i<winners.length; i++) {
+    if ((winners[i] & setSquares) == winners[i]){
+      winningOption = i;
+    }
+  }
+
+  if (winningOption > -1) {
+    for (var i=0; i<24; i++) {
+      if (winners[winningOption] & Math.pow(2, i)) {
+        currSquare = "square" + i;
+        document.getElementById(currSquare).className = "winningBG";
+      }
+    }
+  }
+
+
+}
+
+//------------------------------------------------------------------------------
+
 function setSquare(thisSquare) {
   var currSquare = "square" + thisSquare;
 
@@ -54,6 +98,8 @@ function setSquare(thisSquare) {
 
   usedNums[newNum] = true;
   document.getElementById(currSquare).innerHTML = newNum;
+  document.getElementById(currSquare).className = "";
+  document.getElementById(currSquare).onmousedown = toggleColor;
 
 }
 
@@ -62,3 +108,25 @@ function setSquare(thisSquare) {
 function getNewNum() {
   return Math.floor(Math.random() * 15);
 }
+
+//------------------------------------------------------------------------------
+
+function toggleColor(evt) {
+  if (evt) {
+    var thisSquare = evt.target;
+  }
+  else {
+    var thisSquare = window.event.srcElement;
+  }
+
+  if (thisSquare.className == "") {
+    thisSquare.className = "pickedBG";
+  }
+  else {
+    thisSquare.className = "";
+  }
+
+  checkWin();
+}
+
+//------------------------------------------------------------------------------
