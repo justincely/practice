@@ -97,16 +97,16 @@ int problem_1(int N)
 
   int sum = 0;
 
-    for (int i=0; i<N; i++){
-      if (i % 3 == 0)
-	sum += i;
-      else if (i % 5 == 0)
-	sum += i;
-      else
-	{};
-    }
+  for (int i=0; i<N; i++){
+    if (i % 3 == 0)
+      sum += i;
+    else if (i % 5 == 0)
+      sum += i;
+    else
+     {};
+  }
 
-    return sum;
+  return sum;
 }
 
 //------------------------------------------------------------------------------
